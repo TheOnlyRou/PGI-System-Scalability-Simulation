@@ -119,7 +119,7 @@ def unit_sender(*args):
     while True:
         time.sleep(random.uniform(0, 1.00))
         for sensor in unit:
-            sensor.display_sensor()
+            # sensor.display_sensor()
             sensor.random_update_data()
             sensor.send_sensor_data()
 
