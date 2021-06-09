@@ -43,12 +43,12 @@ class Sensor:
         str_id = self.get_str_id()
         print(str_id + " with value:" + str(self.value))
         url = "http://localhost:3000/update"
-        data = '{"id": str_id, "empty": self.value}'
-        json_data = json.loads(data)
+        data = {"id": str_id, "empty": self.value}
+        json_data = json.dumps(data)
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
         headers["Content-Type"] = "application/json"
-        resp = requests.patch(url, headers=headers, data=data)
+        resp = requests.patch(url, headers=headers, data=json_data)
         print("Sending Sensor ID: " + str_id + " STATUS: " + str(resp.status_code))
 
     def random_update_data(self):
