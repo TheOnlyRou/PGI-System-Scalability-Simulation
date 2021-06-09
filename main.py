@@ -40,6 +40,7 @@ class Sensor:
     def send_sensor_data(self):
         """ A method used to compile and send the sensor data as a JSON object to the server """
         str_id = self.get_str_id()
+        print(str_id + " with value:" + str(self.value))
         url = "http://localhost:3000/update"
         data = \
             {"id": str_id,
@@ -47,8 +48,8 @@ class Sensor:
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
         headers["Content-Type"] = "application/json"
-        resp = requests.patch(url, headers=headers, data=data)
-        print("Sending Sensor ID: " + str_id + " STATUS: " + str(resp.status_code))
+        # resp = requests.patch(url, headers=headers, data=data)
+        # print("Sending Sensor ID: " + str_id + " STATUS: " + str(resp.status_code))
 
     def random_update_data(self):
         """ A method to randomly update sensor value at a chance of 1/4"""
@@ -101,25 +102,23 @@ def setup_sending_threads():
     current_area_id = 1
     current_unit_id = 1
     unit = list()
-    for sensor in sensors:
-        if sensor.area == current_area_id and sensor.unit == current_unit_id:
-            unit.append(sensor)
-        else:
-            my_thread = Thread(target=unit_sender, args=(unit,))
-            threads.append(my_thread)
-            unit.clear()
-            current_unit_id = sensor.unit
-            current_area_id = sensor.area
-            unit.append(sensor)
+    while True:
+        for sensor in sensors:
+            sensor.send_sensor_data()
+            sensor.random_update_data()
 
 
 def unit_sender(*args):
     """ Threaded work: A method to dispatch each each sensor to be sent to the server"""
     unit = args[0]
+    print("Sent")
+    for s in unit:
+        s.display_sensor()
+    print("Received")
     while True:
         time.sleep(random.uniform(0, 1.00))
         for sensor in unit:
-            # sensor.display_sensor()
+            sensor.display_sensor()
             sensor.random_update_data()
             sensor.send_sensor_data()
 
@@ -136,7 +135,7 @@ def main():
     read_parse_file("input")
     setup_sending_threads()
     print("Number of Sensors: " + str(len(sensors)) + "  & Number of threads:" + str(len(threads)))
-    manage_threads()
+    #manage_threads()
 
 
 if __name__ == '__main__':
