@@ -2,6 +2,7 @@ import enum
 import random
 import time
 import requests
+import json
 from requests.structures import CaseInsensitiveDict
 from threading import Thread
 
@@ -44,10 +45,11 @@ class Sensor:
         data = \
             {"id": str_id,
              "empty": self.value}
+        json_data = json.dumps(data)
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
         headers["Content-Type"] = "application/json"
-        resp = requests.patch(url, headers=headers, data=data)
+        resp = requests.patch(url, headers=headers, data=json_data)
         print("Sending Sensor ID: " + str_id + " STATUS: " + str(resp.status_code))
 
     def random_update_data(self):
