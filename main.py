@@ -10,14 +10,16 @@ class Sensor:
 
     """
         TODO:
-        1- Create an appropriate data container to store sensor data from the input file, adding an extra field for sensor
-        value
+        1- Create an appropriate data container to store sensor data from the input file, adding an extra field for
+        sensor value
         2- Populate the data container using the data in the input file, initializing sensor value as empty
         Reminder: the input file is in the following format:
             AreaID(4dig),UnitID(3dig),SensorID(1dig),xCoordinate(double),yCoordinate(double)
-        3- Use a separate thread for every unit to handle sending data every fixed interval as long as the script is running
+        3- Use a separate thread for every unit to handle sending data every fixed interval as long as the script is
+        running
         4- Run the function random_update_data() to randomly update 1/4 of the sensor values every fixed interval
-        5- Devise some performance tests using timers and try them out by tweaking the fixed intervals to push the test to
+        5- Devise some performance tests using timers and try them out by tweaking the fixed intervals to push the test
+        to
         its maximum acceptable response time
     """
 
@@ -51,7 +53,7 @@ class Sensor:
 
     def random_update_data(self):
         """ A method to randomly update sensor value at a chance of 1/4"""
-        chance = random.randint(1,100)
+        chance = random.randint(1, 100)
         if chance <= 25:
             self.value = not self.value
 
