@@ -130,8 +130,8 @@ def manage_threads():
 
 def main():
     """The flow of code is described in this method"""
-    filename = input("Enter filename, without the .txt:")
-    read_parse_file(filename)
+    # filename = input("Enter filename, without the .txt:")
+    read_parse_file("input")
     setup_sending_threads()
     print("Number of Sensors: " + str(len(sensors)) + "  & Number of threads:" + str(len(threads)))
     manage_threads()
