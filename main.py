@@ -100,12 +100,12 @@ def setup_sending_threads():
 
     current_area_id = 1
     current_unit_id = 1
-    unit = []
+    unit = list()
     for sensor in sensors:
         if sensor.area == current_area_id and sensor.unit == current_unit_id:
             unit.append(sensor)
         else:
-            my_thread = Thread(target=unit_sender, args=unit)
+            my_thread = Thread(target=unit_sender, args=(unit,))
             threads.append(my_thread)
             unit.clear()
             current_unit_id = sensor.unit
@@ -113,11 +113,13 @@ def setup_sending_threads():
             unit.append(sensor)
 
 
-def unit_sender(unit: list):
+def unit_sender(*args):
     """ Threaded work: A method to dispatch each each sensor to be sent to the server"""
+    unit = args[0]
     while True:
         time.sleep(random.uniform(0, 1.00))
         for sensor in unit:
+            sensor.display_sensor()
             sensor.random_update_data()
             sensor.send_sensor_data()
 
