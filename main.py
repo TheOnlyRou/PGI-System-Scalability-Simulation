@@ -7,7 +7,6 @@ from threading import Thread
 
 
 class Sensor:
-
     """
         TODO:
         1- Create an appropriate data container to store sensor data from the input file, adding an extra field for
@@ -85,12 +84,13 @@ threads = list()
 
 def read_parse_file(filename: str):
     """ A method to read an input and parse its contents to appropriate types"""
-    f = open(filename+".txt", "r")
+    f = open(filename + ".txt", "r")
     for line in f:
-        line_strips = line.strip().split(',')
-        sensor = Sensor(int(line_strips[0]), int(line_strips[1]), int(line_strips[2]), float(line_strips[3]),
-                        float(line_strips[4]), False)
-        sensors.append(sensor)
+        if not line.startswith("Area"):
+            line_strips = line.strip().split(',')
+            sensor = Sensor(int(line_strips[0]), int(line_strips[1]), int(line_strips[2]), float(line_strips[3]),
+                            float(line_strips[4]), False)
+            sensors.append(sensor)
     return None
 
 
