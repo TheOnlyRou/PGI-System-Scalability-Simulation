@@ -1,6 +1,7 @@
 import random
 import time
 import socket
+import json
 from threading import Thread
 
 
@@ -25,6 +26,19 @@ def __init__(self):
 
 def read_parse_file():
     """A method to read the input file and parse its contents, and populate the data containers with them"""
+    f = open("myfile.txt", "r")
+    for line in f:
+        l = line.strip().split(',')
+        #print("Area is "+l[0]+"\nUnit is "+l[1]+"\nSensor is "+l[2])
+        SensorValue = 0
+        Data = {
+            "Area": l[0],
+            "Unit": l[1],
+            "Sensor": l[2],
+            "SensorValue": SensorValue
+        }
+        jobject = json.dumps(Data)
+
     pass
 
 
