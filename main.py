@@ -5,6 +5,7 @@ import requests
 import json
 from requests.structures import CaseInsensitiveDict
 from threading import Thread
+import queue
 
 
 class Sensor:
@@ -46,6 +47,7 @@ class Sensor:
             {"id": str_id,
              "empty": self.value}
         json_data = json.dumps(data)
+        self.display_sensor()
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
         headers["Content-Type"] = "application/json"
@@ -82,6 +84,7 @@ class RequestState(enum.Enum):
 """ List of all Sensors & threads being employed"""
 sensors = list()
 threads = list()
+q = queue.Queue()
 
 
 def read_parse_file(filename: str):
@@ -103,25 +106,29 @@ def setup_sending_threads():
     current_area_id = 1
     current_unit_id = 1
     unit = list()
-    for sensor in sensors:
-        if sensor.area == current_area_id and sensor.unit == current_unit_id:
-            unit.append(sensor)
-        else:
-            my_thread = Thread(target=unit_sender, args=(unit,))
-            threads.append(my_thread)
-            unit.clear()
-            current_unit_id = sensor.unit
-            current_area_id = sensor.area
-            unit.append(sensor)
+    while True:
+        for sensor in sensors:
+            if sensor.area == current_area_id and sensor.unit == current_unit_id:
+                unit.append(sensor)
+            else:
+                my_thread = Thread(target=unit_sender, args=(q,))
+                my_thread.start()
+                for x in unit:
+                    q.put(x)
+                threads.append(my_thread)
+                unit.clear()
+                current_unit_id = sensor.unit
+                current_area_id = sensor.area
+                unit.append(sensor)
 
 
-def unit_sender(*args):
+def unit_sender(unit_queue):
     """ Threaded work: A method to dispatch each each sensor to be sent to the server"""
-    unit = args[0]
     while True:
         time.sleep(random.uniform(0, 1.00))
-        for sensor in unit:
-            # sensor.display_sensor()
+        while not unit_queue.empty():
+            unit_queue.get().display_sensor()
+            sensor = unit_queue.get()
             sensor.random_update_data()
             sensor.send_sensor_data()
 
@@ -138,7 +145,8 @@ def main():
     read_parse_file("input")
     setup_sending_threads()
     print("Number of Sensors: " + str(len(sensors)) + "  & Number of threads:" + str(len(threads)))
-    manage_threads()
+    #manage_threads()
+    q.join()
 
 
 if __name__ == '__main__':
