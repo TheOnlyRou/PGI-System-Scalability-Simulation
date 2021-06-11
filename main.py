@@ -47,7 +47,6 @@ class Sensor:
             {"id": str_id,
              "empty": self.value}
         json_data = json.dumps(data)
-        self.display_sensor()
         headers = CaseInsensitiveDict()
         headers["Accept"] = "application/json"
         headers["Content-Type"] = "application/json"
@@ -124,13 +123,13 @@ def setup_sending_threads():
 
 def unit_sender(unit_queue):
     """ Threaded work: A method to dispatch each each sensor to be sent to the server"""
-    while True:
-        time.sleep(random.uniform(0, 1.00))
-        while not unit_queue.empty():
-            unit_queue.get().display_sensor()
-            sensor = unit_queue.get()
-            sensor.random_update_data()
-            sensor.send_sensor_data()
+
+    time.sleep(random.uniform(0, 1.00))
+    while not unit_queue.empty():
+        unit_queue.get().display_sensor()
+        sensor = unit_queue.get()
+        sensor.random_update_data()
+        sensor.send_sensor_data()
 
 
 def manage_threads():
