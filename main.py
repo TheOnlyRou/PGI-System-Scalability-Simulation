@@ -7,6 +7,8 @@ from requests.structures import CaseInsensitiveDict
 from threading import Thread
 import queue
 
+file1 = open("output.txt", "a")
+
 
 class Sensor:
     """
@@ -40,9 +42,10 @@ class Sensor:
         print("Sensor ID: " + str_id + " with Coordinates (" + str(self.xcoor) + ", " + str(self.ycoor) + ")")
 
     def send_sensor_data(self):
+        start = time.process_time()
         """ A method used to compile and send the sensor data as a JSON object to the server """
         str_id = self.get_str_id()
-        url = "http://localhost:3000/update"
+        url = "http://desolate-castle-57587.herokuapp.com/update"
         data = \
             {"id": str_id,
              "empty": self.value}
@@ -52,6 +55,9 @@ class Sensor:
         headers["Content-Type"] = "application/json"
         resp = requests.patch(url, headers=headers, data=json_data)
         print("Sending Sensor ID: " + str_id + " STATUS: " + str(resp.status_code))
+        elapsed = time.process_time() - start
+        print(time.process_time() - start)
+        file1.write(str_id+", " + str(resp.status_code) + "," + str(elapsed) + "\n" )
 
     def random_update_data(self):
         """ A method to randomly update sensor value at a chance of 1/4"""
@@ -106,6 +112,7 @@ def setup_sending_threads():
     current_unit_id = 1
     unit = list()
     while True:
+
         for sensor in sensors:
             if sensor.area == current_area_id and sensor.unit == current_unit_id:
                 unit.append(sensor)
@@ -124,12 +131,12 @@ def setup_sending_threads():
 def unit_sender(unit_queue):
     """ Threaded work: A method to dispatch each each sensor to be sent to the server"""
 
-    time.sleep(random.uniform(0, 1.00))
     while not unit_queue.empty():
-        unit_queue.get().display_sensor()
+        # unit_queue.get().display_sensor()
         sensor = unit_queue.get()
         sensor.random_update_data()
         sensor.send_sensor_data()
+
 
 
 def manage_threads():
