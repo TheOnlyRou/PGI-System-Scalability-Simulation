@@ -7,7 +7,7 @@ from requests.structures import CaseInsensitiveDict
 from threading import Thread
 import queue
 
-file1 = open("output.txt", "a")
+
 
 
 class Sensor:
@@ -54,10 +54,12 @@ class Sensor:
         headers["Accept"] = "application/json"
         headers["Content-Type"] = "application/json"
         resp = requests.patch(url, headers=headers, data=json_data)
-        print("Sending Sensor ID: " + str_id + " STATUS: " + str(resp.status_code))
         elapsed = time.process_time() - start
-        print(time.process_time() - start)
-        file1.write(str_id+", " + str(resp.status_code) + "," + str(elapsed) + "\n" )
+        file1 = open("output.txt", "a")
+        file1.write(str_id+", " + str(resp.status_code) + "," + str(elapsed*10000) + "\n")
+        print("Sent Sensor ID: " + str_id + " STATUS: " + str(resp.status_code))
+        file1.close()
+        print(str(elapsed * 10000) + "ms")
 
     def random_update_data(self):
         """ A method to randomly update sensor value at a chance of 1/4"""
@@ -111,21 +113,19 @@ def setup_sending_threads():
     current_area_id = 1
     current_unit_id = 1
     unit = list()
-    while True:
-
-        for sensor in sensors:
-            if sensor.area == current_area_id and sensor.unit == current_unit_id:
-                unit.append(sensor)
-            else:
-                my_thread = Thread(target=unit_sender, args=(q,))
-                my_thread.start()
-                for x in unit:
-                    q.put(x)
-                threads.append(my_thread)
-                unit.clear()
-                current_unit_id = sensor.unit
-                current_area_id = sensor.area
-                unit.append(sensor)
+    for sensor in sensors:
+        if sensor.area == current_area_id and sensor.unit == current_unit_id:
+            unit.append(sensor)
+        else:
+            my_thread = Thread(target=unit_sender, args=(q,))
+            my_thread.start()
+            for x in unit:
+                q.put(x)
+            threads.append(my_thread)
+            unit.clear()
+            current_unit_id = sensor.unit
+            current_area_id = sensor.area
+            unit.append(sensor)
 
 
 def unit_sender(unit_queue):
@@ -136,7 +136,6 @@ def unit_sender(unit_queue):
         sensor = unit_queue.get()
         sensor.random_update_data()
         sensor.send_sensor_data()
-
 
 
 def manage_threads():
@@ -153,6 +152,7 @@ def main():
     print("Number of Sensors: " + str(len(sensors)) + "  & Number of threads:" + str(len(threads)))
     #manage_threads()
     q.join()
+
 
 
 if __name__ == '__main__':
